@@ -1,6 +1,7 @@
 import { TodoItem, TodoList } from "./classes.js";
+import { TodoHistory } from "./memento.js";
 
-class Command {
+export class Command {
   name;
   args; // Array
   constructor(name, args) {
@@ -9,17 +10,20 @@ class Command {
   }
 }
 
-const Commands = {
+export const Commands = {
   ADD: "add",
   DELETE: "delete",
+  UNDO: "undo",
 };
 
-const CommandExecuter = {
+export const CommandExecuter = {
   execute(command) {
+    console.log({ commandName: command.name });
     const todoList = TodoList.getInstance();
     switch (command.name) {
       case Commands.ADD:
-        const todoInput = globalThis.DOMException.todoInput;
+        console.log("Works");
+        const todoInput = globalThis.DOM.todoInput;
         const todoText = todoInput.value.trim();
         const itemInList = todoList.find(todoText);
 
@@ -31,6 +35,12 @@ const CommandExecuter = {
       case Commands.DELETE:
         const [textToDelete] = command.args;
         todoList.delete(textToDelete);
+        break;
+      case Commands.UNDO:
+        const previousList = TodoHistory.pop();
+        if (previousList) {
+          todoList.replaceList(previousList);
+        }
         break;
     }
   },
